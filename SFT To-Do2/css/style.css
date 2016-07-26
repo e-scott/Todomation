@@ -1,0 +1,183 @@
+body {
+    /*    width: 362px;*/
+}
+
+.divPriorities {
+    margin-top: -7px;
+    margin-left: 5px;
+}
+
+.deleteLink {}
+
+.deleteLink:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.delete:hover .deleteLink {
+    color: white;
+}
+
+.saveButton {
+    position: absolute;
+    top: 4px;
+    width: 21px;
+    height: 21px;
+    /*opacity: 0.4;*/
+    cursor: pointer;
+    right: 21px;
+    /*background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAjklEQVR4AWNkIACYyFfQy5CMT2Mxw38gbMEl7cPwF6xgNnZpXYZPYOmDDGzYpMUYHoCl7zKIIBy6lmECAzOYzc5wDCz9gUEToacLLLSVgRfIXgJm/2HwQDZ0PlAIBC8z9EFZeej2NgAFEXA6NqdFMHyHSu9hYMHuOXOGF0DpmwyCuENPjmEHgyq6IOWxCQBVqTR3tBWBPwAAAABJRU5ErkJggg==);*/
+    background: url("/images/tick.png");
+}
+
+.saveButton:hover {
+    /*opacity: 1;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAPhJREFUeNpi/P//PwMlgImBQkCyAV8Kk3qBOJksA4Aai4FUERDPAbJbSDIAqMEHSHUhCYkTbQBQsy6QWoak/hAQZ4MYjIRiAahZDEidAmJ5qNA9IDbn6Z/3BsRhgSoCmbwaiB8DcTFQ8i9UnB1IbUDS/BGIfWCakb3QAcRBQJwPxJuAGnmh4nOB2BLKBhkaAdR8HdmFLFBaFEnMC4iPAQ3ZDaSjkcSLgJp3oHsRHgZADQ1Aqh5HUMwAas7Em5CACkAGRALxDzQ1e4E4F1cgY8QC0CXmQGojNJ5vAbEF0PD3RCdloOKTQMoMiHdCQ/w9vmhmHPDcCBBgABPTVKZWS5i6AAAAAElFTkSuQmCC);*/
+}
+
+.editButton {
+    margin-left: 9px;
+    margin-top: -3px;
+}
+
+.editText {
+    width: 100%;
+    margin: -4px -6px -1px;
+    padding: 5px 5px;
+    border: 1px solid #ABADBA;
+    border-radius: 2px;
+    background: #ffffe2;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, .12);
+    outline: none;
+    font-size: 13px;
+    overflow: hidden;
+    resize: none;
+    height: 27px;
+}
+
+.divCheckAll {
+    padding-top: 4px;
+    padding-left: 1px;
+    position: absolute;
+}
+
+.divRemoveAll {
+    margin-top: -33px;
+    margin-left: 265px;
+}
+
+.divTasks {
+    margin-left: -32px;
+}
+
+.field {
+    position: relative;
+    margin-left: 32px;
+    cursor: move;
+    /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.field:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
+.field .popup {
+    padding: 9px 1px;
+    display: none;
+    position: absolute;
+    top: 2px;
+    left: 47px;
+    height: 98px;
+    width: 32px;
+    background: rgba(0, 0, 0, 1);
+    margin-left: 300px;
+    margin-top: 20px;
+    z-index: 100;
+    border: 1px solid #F37061;
+    border-radius: 2px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, .3);
+}
+
+.todo-item {
+    border-bottom: 1px solid #B6DAFD;
+    position: absolute;
+    top: 0;
+    left: 29px;
+    z-index: 10;
+    width: 3px;
+    height: 100%;
+    border: 1px solid #FCCDC7;
+    border-width: 0 1px;
+    content: '';
+}
+
+.divTasks .tasks .field .btn-remove-todo {
+    display: none;
+}
+
+.divTasks .tasks .field:hover .btn-remove-todo {
+    display: block;
+}
+
+.divTasks .tasks .field .btn-edit-todo {
+    display: none;
+}
+
+.divTasks .tasks .field:hover .btn-edit-todo {
+    display: block;
+}
+
+.divTasks .tasks .field .btn-option-todo {
+    display: none;
+}
+
+.divTasks .tasks .field:hover .btn-option-todo {
+    display: block;
+}
+
+.todo-item .btn-remove-todo {
+    display: none;
+}
+
+.todo-item:hover .btn-remove-todo {
+    display: block;
+}
+
+.todo-item .btn-edit-todo {
+    display: none;
+}
+
+.todo-item:hover .btn-edit-todo {
+    display: block;
+}
+
+.todo-item .btn-option-todo {
+    display: none;
+}
+
+.todo-item:hover .btn-option-todo {
+    display: block;
+}
+
+.todo-item .todo-content {
+    font-weight: bold;
+}
+
+.todo-item.completed .todo-content {
+    color: darkgray;
+    font-weight: normal;
+    text-decoration: line-through;
+}
+
+#todo-list {
+    margin-bottom: 10px;
+}
+
+#btn-remove-all {
+    margin-bottom: 10px;
+}

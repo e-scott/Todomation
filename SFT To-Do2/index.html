@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html ng-app='app'>
+<head>
+    <title>Angular Todo Chrome Extension</title>
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/egStyle.css">
+    <link rel="stylesheet" type="text/css" href="css/options.css">
+    <style type="text/css">
+        [type=checkbox]:after {
+            content: attr(value);
+            margin: -3px 15px;
+            display: inline-block;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        select option:empty {
+            display: none;
+        }
+    </style>
+
+    <script type="text/javascript" src="lib/jquery/jqueryOptions.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/jquery.minicolors.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/options.js"></script>
+</head>
+<body id="body" ng-controller='todoCtrl' ng-init="bodyWidth = 394" ng-style="{ width: bodyWidth }">
+    <div>
+        <div class="divHeading">
+            <!--Header-->
+            <div class="header">
+                <label style="text-shadow: 1px 1px 1px rgba(255, 255, 255, .7); font-size: 19px; margin-left: -31px;">todoMation</label>
+                <span class="version" id="version">1.26</span>
+                <div id="options" title="Tasks" ng-click="navigatePage()" data-i18n-title="optionsTitle"></div>
+                <div id="options2" title="Settings" ng-click="navigatePage2()" data-i18n-title="optionsTitle"></div>
+            </div>
+
+        </div>
+
+        <div class="divTasksPage" ng-show="tasks" style="padding-bottom:10px !important">
+
+            <!--Add-->
+            <div class="add" style="clear:both">
+                <form id='todo-form'>
+                    <div class="form-group">
+                        <div id="submit" title="Add" style="margin-top:1px;float:right" ng-click="add();"></div>
+                        <textarea id='txtNewTask' type='text' id='new-todo' ng-trim="false" ng-model='newContent' class="form-control" placeholder="Type a new task in multiple lines..." ng-change="getTextContent($event)" style="margin-left: 8px;margin-bottom:1px;" ng-keypress="keyPressAddEvent($event)" focus-me="true"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!--Tasks-->
+            <div id="divTasks" class="divTasks">
+                <ul class='tasks' ui-sortable="todoSortable" ng-model="todoList" ng-class="ulScroll>379 ? '' : 'ulScroll'">
+                    <li class="field" ng-repeat="todo in todoList track by todo.id" ng-class='{completed: todo.completed}' style="white-space:wrap">
+                        <input type='checkbox' name="{{'chk'+$index}}" class="checkbox2" ng-model='todo.completed' ng-click='toggleCompleted(5, todo)' value='valuable' id="{{'chk'+$index}}" />
+                        <label for="{{'chk'+$index}}" style="white-space:pre-wrap"></label>
+                        <!--Options-->
+                        <div class="divOpt" style="position: relative;top:0px;float:right;">
+                            <a id="action" class='action' href="#">
+                            </a>
+                            <a class='edit' ng-click='edit(todo, $index)' style="padding-right:4px; cursor:pointer" title="Edit">
+                            </a>
+                        </div>
+                        <!--                <div class="drag"></div>-->
+                        <!--Task-->
+                        <span ng-style="taskNameStyle(todo)" style="width: 285px; display: block; word-wrap: break-word; white-space: pre-wrap" ng-bind-html="DecodeData(todo.text)"></span>
+                        <!--Edit View-->
+                        <div id="divEdit" class="txtarea" style="display:none;">
+                            <textarea id="{{'txtEditTask'+$index}}" type='text' ng-trim="false" class="editText" ng-model='todo.text' ng-keypress="keyPressEditEvent($event, todo)" style="margin-left: -3px; color: black; background-color: #ffffe2" focus-me="true"></textarea>
+                            <div class="saveButton" ng-click='add(todo)' title="Save"></div>
+                        </div>
+                        <!--Priority pop-up for text's-->
+                        <div id="divPopup" class="popup">
+                            <div class="divPriorities">
+                                <!--<label class="priority">Priority:</label>-->
+                                <input type="button" class="pr" ng-style=priority1ButtonStyle(todo) value="1" ng-click="AssignPriority(1, todo)">
+                                <input type="button" class="pr" ng-style=priority2ButtonStyle(todo) value="2" ng-click="AssignPriority(2, todo)">
+                                <input type="button" class="pr" ng-style=priority3ButtonStyle(todo) value="3" ng-click="AssignPriority(3, todo)">
+                                <input type="button" class="pr" ng-style=priorityButtonStyle(todo) value="4" ng-click="AssignPriority(4, todo)">
+                            </div>
+                            <!--<div class="delete">
+                                <a class="deleteLink" ng-click='remove(todo)' style="padding-right:4px; cursor:pointer">Delete</a>
+                            </div>-->
+                        </div>
+                    </li>
+                    <li ng-class="todoCount()>0 ? 'emptyli' : 'hide-emptyli'"></li>
+                </ul>
+            </div>
+            <!--Actions-->
+            <div class="actions" ng-class="todoCount()>0 ? 'actShow' : 'actHidden'">
+                <div class="divCheckAll">
+                    <input type='checkbox' class="checkbox1" name='chkAll' ng-model="selectedAll" ng-click="checkAll()" value='valuable' id="chkAll" />
+                    <label for="chkAll"></label>
+                </div>
+                <div class="divLabelChk">
+                    <label>Select All</label>
+                    <div class="del-completed" title="Delete" ng-click='removeAll()' data-i18n="deleteCompleted" ng-class="delCompleted ? 'del-completed-active' : 'del-completed-inactive'"></div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div id="divOptionsPage" ng-show="options">
+            <div id="wrapper" class="wrapper">
+                <!--<h1>todoMation<span class="version" id="version"></span></h1>-->
+                <div class="tabs">
+                    <ul class="tabs__caption">
+                        <li id="opt" class="opt active" ></li>
+                        <li id="impExp" class="impExp" ></li>
+                        <li id="ver" class="ver" ></li>
+                    </ul>
+                    <div class="tabs__content  active">
+                        <!-- .option -->
+                        <div class="option">
+                            <div class="bgTitle">
+                                <span style="margin-left: 7px;">Change the Background Color:</span>
+                                <input type="text" class="color" id="backgroundColor" value="#fdfd89" data-default="#fdfd89" style="margin-left: 172px;" />
+                            </div>
+                        </div>
+                        <!-- .option -->
+                        <div class="option" style=" height: 58px; padding-top: 12px">
+                            <div class="option__title">
+                                <span >Fonts:</span>
+                                <input type="text" id="task-css" data-default="font-size: 13px; line-height: 16px; font-family: Helvetica, Arial, sans-serif" />
+                            </div>
+                        </div>
+                        <!-- .option -->
+                        <div class="option" style="height:55px">
+                            <div class="option__title"><span style="margin-top: -4px;">Priority 1:</span></div>
+                            <input type="text" class="color" id="color1" data-default="#F04B39" />
+                            <div id="divPriority">
+                                <label class="labelP1">
+                                    <span>Font Size:</span><select id="selectP1" ng-model="font1" class="font1">
+                                        <option ng-repeat="font in fonts">{{ font }}</option>
+                                    </select>
+                                    <span>Style:</span><select id="selectP11" ng-model="font11" class="font2">
+                                        <option ng-repeat="font in fonts2">{{ font }}</option>
+                                    </select>
+                                </label>
+                                <label class="lblPosition">
+                                    Position:
+                                    <select id="selectPosition1" ng-model="position1" class="position">
+                                        <option ng-repeat="pos in positions">{{ pos }}</option>
+                                    </select>
+                                </label>
+                                <input id="chkDefaultPriority1" class="defChkBox" type="checkbox" ng-model="default1" ng-click="default1Click()" value="Make Default" />
+                            </div>
+                        </div>
+
+                        <div class="option" style="height:55px">
+                            <div class="option__title"><span style="margin-top: -4px;">Priority 2:</span></div>
+                            <input type="text" class="color" id="color2" data-default="#FFA600" />
+                            <div id="divPriority">
+                                <label class="labelP1">
+                                    Font Size:<select id="selectP2" ng-model="font2" class="font1">
+                                        <option ng-repeat="font in fonts">{{ font }}</option>
+                                    </select>
+                                    Style:<select id="selectP22" ng-model="font22" class="font2">
+                                        <option ng-repeat="font in fonts2">{{ font }}</option>
+                                    </select>
+                                </label>
+                                <label class="lblPosition">
+                                    Position:
+                                    <select id="selectPosition2" ng-model="position2" class="position">
+                                        <option ng-repeat="pos in positions">{{ pos }}</option>
+                                    </select>
+                                </label>
+                                <input id="chkDefaultPriority2" class="defChkBox" type="checkbox" ng-model="default2" ng-click="default2Click()" value="Make Default" />
+                            </div>
+                        </div>
+
+                        <div class="option" style="height:55px">
+                            <div class="option__title"><span style="margin-top: -4px;">Priority 3:</span></div>
+                            <input type="text" class="color" id="color3" data-default="#75BE2C" />
+                            <div id="divPriority">
+                                <label class="labelP1">
+                                    Font Size:<select id="selectP3" ng-model="font3" class="font1">
+                                        <option ng-repeat="font in fonts">{{ font }}</option>
+                                    </select>
+                                    Style:<select id="selectP33" ng-model="font33" class="font2">
+                                        <option ng-repeat="font in fonts2">{{ font }}</option>
+                                    </select>
+                                </label>
+                                <label class="lblPosition">
+                                    Position:
+                                    <select id="selectPosition3" ng-model="position3" class="position">
+                                        <option ng-repeat="pos in positions">{{ pos }}</option>
+                                    </select>
+                                </label>
+                                <input id="chkDefaultPriority3" class="defChkBox" type="checkbox" ng-model="default3" ng-click="default3Click()" value="Make Default" />
+                            </div>
+                        </div>
+
+                        <div class="option" style="height:55px">
+                            <div class="option__title"><span style="margin-top: -4px;">Priority 4:</span></div>
+                            <input type="text" class="color" id="color4" data-default="#AAA" />
+                            <div id="divPriority">
+                                <label class="labelP1">
+                                    Font Size:<select id="selectP4" ng-model="font4" class="font1">
+                                        <option ng-repeat="font in fonts">{{ font }}</option>
+                                    </select>
+                                    Style:<select id="selectP44" ng-model="font44" class="font2">
+                                        <option ng-repeat="font in fonts2">{{ font }}</option>
+                                    </select>
+                                </label>
+                                <label class="lblPosition">
+                                    Position:
+                                    <select id="selectPosition4" ng-model="position4" class="position">
+                                        <option ng-repeat="pos in positions">{{ pos }}</option>
+                                    </select>
+                                </label>
+                                <input id="chkDefaultPriority4" class="defChkBox" type="checkbox" ng-model="default4" ng-click="default4Click()" value="Make Default" />
+                            </div>
+                        </div>
+
+                        <!-- .option -->
+                        <!--<div class="option">
+
+                        </div>-->
+                        <!-- .option -->
+                        <!--<div class="option">
+
+                        </div>-->
+                        <!-- .option -->
+                        <div class="option" style="height:76px">
+                            <div class="option__title" style="margin-top:-10px !important"><span data-i18n="hotkeys">Hotkeys:</span></div>
+                            <div class="radios" id="hotkeys" style="margin-left: -70px">
+                                <label style="width:244px !important; margin-top:-8px">
+                                    <input type="radio" name="hotkey" value="0" /><span>
+                                        <span> Add, Save a Task&nbsp; &#45;</span>  <span class="hotKeys">&nbsp;Enter</span>
+                                        <br />  &nbsp;&nbsp; &nbsp;&nbsp;
+                                        <span>New line &nbsp;&#45;</span><span class="hotKeys">&nbsp;Ctrl + Enter&nbsp;(Shift + Enter)</span>
+                                </label>
+                                <label style="width: 244px !important; margin-left: 284px !important; margin-top: -44px !important;">
+                                    <input type="radio" name="hotkey" value="1" /><span>
+                                        <span>Add, Save a Task&nbsp;&#45;</span><span class="hotKeys">&nbsp;Ctrl + Enter</span>
+                                        <br />&nbsp;&nbsp; &nbsp;&nbsp;
+                                        <span>New line&nbsp;&#45;</span><span class="hotKeys">&nbsp;Enter&nbsp;(Shift + Enter)</span>
+                                    </span>
+                                </label>
+                            </div>
+                            <!-- .radios -->
+                        </div>
+                        <!-- .option -->
+                        <!--<div class="option">
+                            <div class="option__title" style="padding-left:38px">
+                                <span>
+                                    <span data-i18n="browsersContextMenu">Browser's context menu</span>
+                                    <br /> (<span data-i18n="saveAsTask">Save as task</span>):
+                                </span>
+                            </div>
+                            <div class="checkbox" id="context-menu" data-default="0" data-val="0"></div>
+                            <div class="option__note" data-i18n="browsersContextMenuRestart">After changing this option you must restart the extension.</div>
+                        </div>-->
+                        <!-- .option -->
+                        <div class="buttons">
+                            <div class="button" id="save" style="margin-left:327px">
+                                <div>SAVE</div>
+                            </div>
+                            <div class="button  gray-button" id="defaults" style="margin-left:10px">
+                                <div>RESTORE DEFAULTS</div>
+                            </div>
+                        </div>
+                        <!-- .buttons -->
+                    </div>
+                    <!--</div>-->
+                    <!-- .tabs__content -->
+                    <div class="tabs__content">
+                        <h2>Import Data</h2>
+                        <p>Here you can import the data (options and tasks), exported from another browser.</p>
+                        <textarea id="import" name="" cols="30" rows="7"></textarea>
+                        <div class="buttons">
+                            <div class="button" id="import-button" style="margin-left:342px">
+                                <div>Import Data</div>
+                            </div>
+                            <div class="button gray-button" id="clear-button" style="margin-left:10px">
+                                <div>Clear All Data</div>
+                            </div>
+                        </div>
+                        <!-- .buttons -->
+                        <div class="modal_new" id="confirm-import">
+                            <div class="modal-inner">
+                                <div class="modal__headline">Are you sure?</div>
+                                <p>All current data will be overwritten!</p>
+                                <div class="buttons">
+                                    <div class="button" id="import-yes">
+                                        <div>Yes</div>
+                                    </div>
+                                    <div class="button gray-button" id="import-no">
+                                        <div>No</div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!-- .modal -->
+                        <div class="modal_new" id="confirm-clear">
+                            <div class="modal-inner">
+                                <div class="modal__headline">Are you sure?</div>
+                                <p>The database and all settings of the extension will be deleted!</p>
+                                <div class="buttons">
+                                    <div class="button" id="clear-yes">
+                                        <div>Yes</div>
+                                    </div>
+                                    <div class="button gray-button" id="clear-no">
+                                        <div>No</div>
+                                    </div>
+                                </div>
+                                <!-- .buttons -->
+                            </div>
+                        </div>
+                        <!-- .modal -->
+                        <div class="modal_new" id="done">
+                            <div class="modal-inner">
+                                <div class="modal__headline" id="data-imported-successfully">Data imported successfully</div>
+                                <div class="modal__headline" id="could-not-be-imported">The data could not be imported due to wrong format</div>
+                                <div class="modal__headline" id="all-data-is-deleted">All data is deleted</div>
+                                <div class="buttons">
+                                    <div class="button" id="ok">
+                                        <div>Ok</div>
+                                    </div>
+                                </div>
+                                <!-- .buttons -->
+                            </div>
+                        </div>
+                        <!-- .modal -->
+                        <h2>Export Data</h2>
+                        <p>Use this code to import data (options and tasks) into another browser.</p>
+                        <textarea id="export" name="" cols="30" rows="7"></textarea>
+                        <a href="" id="export-link">Click to download data as file</a>
+                    </div>
+                    <!-- .tabs__content -->
+                    <div class="tabs__content">
+                        <dl>
+                            <dt>1.26 <sup>2016.07.01</sup></dt>
+                            <dd class="fixed">Fixed: Restore button will restore default fonts also.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.25 <sup>2016.06.29</sup></dt>
+                            <dd class="fixed">Fixed: Drag and drop works properly after position selection.</dd>
+                            <dd class="fixed">Fixed: Removed scroll for the tools page.</dd>
+                            <dd class="added">Added: Added 4th priority in the tools page.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.24 <sup>2016.06.27</sup></dt>
+                            <dd class="added">Added: Selection of a default priority.</dd>
+                            <dd class="fixed">Fixed: Priority selection will be always fully visible.</dd>
+                            <dd class="fixed">Fixed: Spaces enetered in the textbox will be saved.</dd>
+                            <dd class="added">Added: Selection for entering the task at either top or bottom of the list of its priority.</dd>
+                            <dd class="added">Added: Selection of font size per priority.</dd>
+                        </dl>
+                        <dl>
+                            <dt>0.0.0.29<sup>2016.06.22</sup></dt>
+                            <dd class="added">Beta Version</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.23 <sup>2016.06.17</sup></dt>
+                            <dd class="added">Added: New design.</dd>
+                            <dd class="added">Added: Additional control to change the background color.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.22 <sup>2016.05.18</sup></dt>
+                            <dd class="fixed">Fixed: The Ctrl + Enter is not working properly. The text does not display correctly once the task is saved.  If you do the Ctrl + Enter, it should add a new line.  This should be displayed properly after saving.  It should look the same as when you edit it.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.21 <sup>2016.04.26</sup></dt>
+                            <dd class="fixed">Fixed: If you make a task, then hit edit button and delete the task you are left with a blank box. The app will then make a second blank box and it will not allow you to enter any new items.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.20 <sup>2016.04.22</sup></dt>
+                            <dd class="fixed">Fixed: Puts the text on the respective lines after entering and editing.</dd>
+                            <dd class="fixed">Fixed: After control + enter is done box can be reverted back to its original size.</dd>
+                            <dd class="fixed">Fixed: Sorting works after color change.</dd>
+                            <dd class="fixed">Fixed: Initially when the plugin is added to the browser, enter some text in the text field and click the mouse cursor outside. Again open the plugin, here previously entered text has removed.</dd>
+                            <dd class="fixed">Fixed: Initially if you copy paste a long text(paragraph) in the text field using mouse click, textbox is not resized.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.1 <sup>2016.04.20</sup></dt>
+                            <dd class="added">Added: Import Export functions.</dd>
+                            <dd class="fixed">Fixed: Scroll issue is fixed. Position of Gear tool and textbox remains fixed when scroll appears.</dd>
+                            <dd class="fixed">Fixed: Version numbering and number history is corrected.</dd>
+                        </dl>
+                        <dl>
+                            <dt>1.0 <sup>2016.04.18</sup></dt>
+                            <dd class="added">Initial version. Added all the basic functionalities of the example app in it.</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script type="text/javascript" src="lib/jquery/jquery-2.1.3.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-route.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-filter.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <!--    <script type="text/javascript" src="lib/jquery/jquery.autogrow-textarea.js"></script>-->
+    <!--    <script type="text/javascript" src="lib/jquery/textAreaFlexi.js"></script>-->
+    <script type="text/javascript" src="lib/jquery/jqueryEvents.js"></script>
+
+    <!--
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+    <link rel="stylesheet" src="lib/bootstrapcdn/bootstrap.min.css">
+    <script src="lib/bootstrapcdn/bootstrap.min.js"></script>
+    <script type="text/javascript" src="lib/jquery/sortable.js"></script>
+    <script type="text/javascript" src="app/app.js"></script>
+    <script type="text/javascript" src="app/todoStorage.js"></script>
+    <script type="text/javascript" src="app/todoCtrl.js"></script>
+</body>
+</html>
